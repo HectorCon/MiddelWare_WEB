@@ -6,13 +6,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 const TARGET_URL = process.env.TARGET_URL || 'http://134.209.74.19:8080';
 
-// Configure CORS
+// Configure CORS to accept all origins
 const corsOptions = {
-  origin: ['https://proyecto-des-web-front.onrender.com'],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Authorization'],
-  credentials: true
+  exposedHeaders: ['Authorization']
 };
 
 // Enable CORS with specific options
@@ -36,10 +35,9 @@ const proxyOptions = {
   },
   onProxyRes: (proxyRes, req, res) => {
     // Add CORS headers to the proxy response
-    proxyRes.headers['Access-Control-Allow-Origin'] = 'https://proyecto-des-web-front.onrender.com';
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
     proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
     proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
-    proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
     proxyRes.headers['Access-Control-Expose-Headers'] = 'Authorization';
 
     // Handle JWT token in response if needed

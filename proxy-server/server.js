@@ -7,19 +7,23 @@ const app = express();
 const port = process.env.PORT || 10000;
 const TARGET_URL = process.env.TARGET_URL || 'http://134.209.74.19:8080';
 
-// Configure CORS to accept all origins
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Authorization']
+// CORS middleware function
+const corsMiddleware = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Expose-Headers', 'Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+  next();
 };
 
-// Enable CORS with specific options
-app.use(cors(corsOptions));
-
-// Handle OPTIONS preflight requests
-app.options('*', cors(corsOptions));
+// Apply CORS middleware
+app.use(corsMiddleware);
 
 // Proxy middleware configuration
 const proxyOptions = {
@@ -35,11 +39,11 @@ const proxyOptions = {
     }
   },
   onProxyRes: (proxyRes, req, res) => {
-    // Add CORS headers to the proxy response
-    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-    proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
-    proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
-    proxyRes.headers['Access-Control-Expose-Headers'] = 'Authorization';
+    // Ensure CORS headers are preserved and set correctly
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Expose-Headers', 'Authorization');
 
     // Handle JWT token in response if needed
     if (proxyRes.headers['authorization']) {
@@ -62,8 +66,17 @@ app.get('/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error occurred:', err);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// Start server
 app.listen(port, '0.0.0.0', () => {
   console.log(`Proxy server running on port ${port}`);
   console.log(`Target URL: ${TARGET_URL}`);
   console.log(`CORS configuration: Allow all origins (*)`);
+  console.log(`Server is ready to handle requests`);
 });

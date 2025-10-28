@@ -35,6 +35,13 @@ const proxyOptions = {
     }
   },
   onProxyRes: (proxyRes, req, res) => {
+    // Add CORS headers to the proxy response
+    proxyRes.headers['Access-Control-Allow-Origin'] = 'https://proyecto-des-web-front.onrender.com';
+    proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+    proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+    proxyRes.headers['Access-Control-Allow-Credentials'] = 'true';
+    proxyRes.headers['Access-Control-Expose-Headers'] = 'Authorization';
+
     // Handle JWT token in response if needed
     if (proxyRes.headers['authorization']) {
       res.setHeader('Authorization', proxyRes.headers['authorization']);

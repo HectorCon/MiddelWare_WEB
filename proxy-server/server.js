@@ -6,8 +6,20 @@ const app = express();
 const port = process.env.PORT || 3000;
 const TARGET_URL = process.env.TARGET_URL || 'http://134.209.74.19:8080';
 
-// Enable CORS
-app.use(cors());
+// Configure CORS
+const corsOptions = {
+  origin: ['https://proyecto-des-web-front.onrender.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Authorization'],
+  credentials: true
+};
+
+// Enable CORS with specific options
+app.use(cors(corsOptions));
+
+// Handle OPTIONS preflight requests
+app.options('*', cors(corsOptions));
 
 // Proxy middleware configuration
 const proxyOptions = {

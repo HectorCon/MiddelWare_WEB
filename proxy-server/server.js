@@ -3,7 +3,8 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
+// Render will provide the PORT environment variable
+const port = process.env.PORT || 10000;
 const TARGET_URL = process.env.TARGET_URL || 'http://134.209.74.19:8080';
 
 // Configure CORS to accept all origins
@@ -61,6 +62,8 @@ app.get('/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Proxy server running on port ${port}`);
+  console.log(`Target URL: ${TARGET_URL}`);
+  console.log(`CORS configuration: Allow all origins (*)`);
 });
